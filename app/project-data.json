@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Community Garden",
+      "owner": "Maya Chen",
+      "status": "On track",
+      "recentActivity": "Volunteer signup page reviewed; next planting-day details are being added.",
+      "priority": "Medium",
+      "summary": "Coordinate local volunteers and publish the spring planting schedule."
+    },
+    {
+      "name": "Access for Everyone",
+      "owner": "Jordan Lee",
+      "status": "Needs attention",
+      "recentActivity": "The keyboard navigation audit found a few follow-up items for the team.",
+      "priority": "High",
+      "summary": "Improve accessibility across the community resources portal."
+    },
+    {
+      "name": "Bright Ideas Newsletter",
+      "owner": "Sam Rivera",
+      "status": "In progress",
+      "recentActivity": "The first draft of the monthly story lineup is ready for feedback.",
+      "priority": "Low",
+      "summary": "Share project updates, useful resources, and contributor stories each month."
+    },
+    {
+      "name": "Neighborhood Tool Library",
+      "owner": "Avery Patel",
+      "status": "Planning",
+      "recentActivity": "The team gathered initial equipment requests from neighborhood groups.",
+      "priority": "Medium",
+      "summary": "Create a shared inventory and simple lending process for community tools."
+    }
+  ]
+}

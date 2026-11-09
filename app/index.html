@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A quick overview of project progress, owners, and priorities.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="dashboard header-content">
+        <p class="eyebrow">Team workspace</p>
+        <h1>Project Pulse</h1>
+        <p class="page-intro">A clear view of what’s moving, who’s leading, and what needs attention.</p>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="projects-section" aria-labelledby="projects-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Your team at a glance</p>
+            <h2 id="projects-heading">Projects</h2>
+          </div>
+        </div>
+        <p id="project-state" class="project-state" role="status" aria-live="polite">Loading projects…</p>
+        <div id="project-list" class="project-grid" aria-busy="true"></div>
+      </section>
+    </main>
+
+    <script>
+      const projectList = document.querySelector("#project-list");
+      const projectState = document.querySelector("#project-state");
+      const requiredFields = ["name", "owner", "status", "recentActivity", "priority", "summary"];
+
+      function showError(message) {
+        projectList.replaceChildren();
+        projectList.setAttribute("aria-busy", "false");
+        projectState.textContent = message;
+        projectState.setAttribute("role", "alert");
+      }
+
+      function addTextElement(parent, tagName, className, label, value) {
+        const element = document.createElement(tagName);
+        if (className) element.className = className;
+        if (label) {
+          const labelElement = document.createElement("span");
+          labelElement.className = "field-label";
+          labelElement.textContent = label;
+          element.append(labelElement, document.createTextNode(" "));
+        }
+        element.append(document.createTextNode(value));
+        parent.append(element);
+      }
+
+      function renderProjects(projects) {
+        if (projects.length === 0) {
+          projectList.replaceChildren();
+          projectList.setAttribute("aria-busy", "false");
+          projectState.textContent = "There are no projects to show yet.";
+          projectState.setAttribute("role", "status");
+          return;
+        }
+
+        const cards = document.createDocumentFragment();
+        projects.forEach((project) => {
+          const card = document.createElement("article");
+          card.className = "project-card";
+
+          const heading = document.createElement("h3");
+          heading.className = "project-name";
+          heading.textContent = project.name;
+          card.append(heading);
+
+          addTextElement(card, "p", "project-owner", "Owner:", project.owner);
+
+          const details = document.createElement("dl");
+          details.className = "project-details";
+
+          const statusTerm = document.createElement("dt");
+          statusTerm.textContent = "Status";
+          const statusValue = document.createElement("dd");
+          statusValue.className = "project-status";
+          statusValue.textContent = project.status;
+
+          const priorityTerm = document.createElement("dt");
+          priorityTerm.textContent = "Priority";
+          const priorityValue = document.createElement("dd");
+          priorityValue.className = "project-priority";
+          priorityValue.textContent = project.priority;
+          details.append(statusTerm, statusValue, priorityTerm, priorityValue);
+          card.append(details);
+
+          addTextElement(card, "p", "project-activity", "Recent activity:", project.recentActivity);
+          addTextElement(card, "p", "project-summary", "Summary:", project.summary);
+          cards.append(card);
+        });
+
+        projectList.replaceChildren(cards);
+        projectList.setAttribute("aria-busy", "false");
+        projectState.textContent = `${projects.length} ${projects.length === 1 ? "project" : "projects"} in view`;
+        projectState.setAttribute("role", "status");
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Project data request failed (${response.status}).`);
+          }
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects array.");
+          }
+
+          const invalidProject = data.projects.find((project) =>
+            !project || requiredFields.some((field) =>
+              typeof project[field] !== "string" || project[field].trim() === ""
+            )
+          );
+          if (invalidProject) {
+            throw new Error("A project is missing one or more required text fields.");
+          }
+
+          renderProjects(data.projects);
+        } catch (error) {
+          console.error("Unable to load project data:", error);
+          showError("Projects couldn’t be loaded. Please try again later.");
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>
